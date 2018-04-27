@@ -70,13 +70,13 @@ function initialize(userlist, paylist, mipaylist){
   }
 
   // 一覧作成
-  function createList(paylist);
-  function createList(mipaylist);
+  createList(paylist, "miPayList");
+  createList(mipaylist, "payList");
 }
 
-function createList(list)
+function createList(list, listName) {
   // 未精算一覧生成
-  var tb = document.getElementById("list").getElementsByTagName('tbody')[0];
+  var tb = document.getElementById(listName).getElementsByTagName('tbody')[0];
   var i = 1;
   for (var row of list) {
     var tr = tb.insertRow(-1);
