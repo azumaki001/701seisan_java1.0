@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  SYSTEM "mybatis-3-mapper.dtd">
+
+<mapper namespace="seisan.rest.oracle">
+
+  <select id="SELECT_ADEVENTID" resultType="DECIMAL">
+    select ASY_WK_268.SEQ_AD_EVENT.nextval AD_EVENT_ID from sys.dual
+  </select>
+
+  <insert id="INSERT_AD_EVENT">
+    insert into
+      ASY_WK_268.ADJUSTMENT_EVENT (
+      EVENT_ID,
+      DETAIL_IDS,
+      EVENT_AMOUNT,
+      EVENT_DATE,
+      EVENT_FROM,
+      EVENT_TO)
+    values (
+      #{EVENT_ID},
+      #{DETAIL_IDS},
+      #{EVENT_AMOUNT},
+      SYSDATE,
+      #{EVENT_FROM},
+      #{EVENT_TO})
+  </insert>
+
+  <update id="UPDATE_ADJUSTMENT_DETAIL">
+    update
+      ASY_WK_268.ADJUSTMENT_DETAIL
+    set
+      AD_DATE = SYSDATE,
+      AD_DONE = '1'
+    WHERE
+      AD_DETAIL_ID in
+    <foreach collection="array" item="item"
+              open="(" separator="," close=")">
+       #{item}
+    </foreach>
+  </update>
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  SYSTEM "mybatis-3-config.dtd">
+
+<configuration>
+
+  <settings>
+    <setting name="autoMappingBehavior" value="FULL" />
+  </settings>
+
+  <typeAliases>
+    <package name="com.server.entity" />
+    <package name="com.server.revpojo" />
+    <package name="com.server.retpojo" />
+  </typeAliases>
+
+  <environments default="seisanOracle">
+
+    <environment id="seisanOracle">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@10.33.203.6:1524:pxs18"/>
+        <property name="username" value="ASY_WK_268"/>
+        <property name="password" value="ASY_WK_268"/>
+      </dataSource>
+    </environment>
+
+    <environment id="seisanMysql">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@10.33.203.6:1524:pxs18"/>
+        <property name="username" value="ASY_WK_268"/>
+        <property name="password" value="ASY_WK_268"/>
+      </dataSource>
+    </environment>
+
+  </environments>
+
+  <mappers>
+    <mapper resource="resources/api_v1_mapper.xml"/>
+    <mapper resource="resources/api_v2_mapper.xml"/>
+    <mapper resource="resources/api_v3_mapper.xml"/>
+    <mapper resource="resources/api_v4_mapper.xml"/>
+    <mapper resource="resources/api_v5_v6_mapper.xml"/>
+  </mappers>
+
+</configuration>

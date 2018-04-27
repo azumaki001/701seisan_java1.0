@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  SYSTEM "mybatis-3-mapper.dtd">
+
+<mapper namespace="seisan.rest.oracle">
+
+  <select id="SELECT_ATOB" resultType="UserAUserB_RESULT">
+    select
+      A.AD_DETAIL_ID adNum
+      ,A.PAY_ID payNum
+      ,A.AD_AMOUNT amount
+      ,UA.NAME userNmFrom
+      ,UB.NAME userNmTo
+      ,A.AD_DATE adDate
+      ,A.AD_DONE adDone
+      ,P.PAY_CONTENT use
+      ,A.AD_FROM userIdFrom
+      ,A.AD_TO userIdTo
+    from
+      ASY_WK_268.ADJUSTMENT_DETAIL A
+    inner join
+      ASY_WK_268.PAY_BIZ P
+    on A.PAY_ID = P.PAY_ID
+    left join
+      ASY_WK_268.USER_MST UA
+    on A.AD_FROM = UA.ID
+    left join
+      ASY_WK_268.USER_MST UB
+    on A.AD_TO = UB.ID
+    where
+    <if test="userA != null">
+      A.AD_FROM = #{userA}
+    and
+    </if>
+    <if test="userB != null">
+      A.AD_TO = #{userB}
+    and
+    </if>
+      A.AD_DONE &lt;&gt; 1
+    order by
+      AD_DONE DESC,
+      AD_AMOUNT DESC
+  </select>
+
+</mapper>

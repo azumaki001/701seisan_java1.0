@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  SYSTEM "mybatis-3-mapper.dtd">
+
+<mapper namespace="seisan.rest.oracle">
+
+  <resultMap id="rm_select_siharai" type="PayList" >
+    <id column="payId" property="payId" />
+    <collection property="details" ofType="Detail" >
+      <id column="name" property="name" />
+    </collection>
+  </resultMap>
+
+  <select id="SELECT_FROM_USERMST" resultType="UserMst">
+    select * from user_mst
+  </select>
+
+  <select id="SELECT_SIHARAI" resultMap="rm_select_siharai">
+    SELECT
+      B.PAY_ID payId
+      , B.PAY_AMOUNT payAmount
+      , B.PAY_PAYER payer
+      , B.PAY_FOR_USERS payForusers
+      , B.PAY_CONTENT payContent
+      , TO_CHAR(B.REGIST_DATE, 'YYYY-MM-DD HH24:MI:SS') registDate
+      , U.NAME name
+      , D.AD_DONE done
+      , D.AD_AMOUNT amount
+      , TO_CHAR(D.AD_DATE, 'YYYY-MM-DD HH24:MI:SS') adDate
+    FROM
+      ASY_WK_268.PAY_BIZ B
+    LEFT OUTER JOIN
+      ASY_WK_268.ADJUSTMENT_DETAIL D
+    ON
+      B.PAY_ID = D.PAY_ID
+    LEFT OUTER JOIN
+      ASY_WK_268.USER_MST U
+    ON
+      D.AD_FROM = U.ID
+    ORDER BY
+      B.REGIST_DATE DESC
+  </select>
+</mapper>
