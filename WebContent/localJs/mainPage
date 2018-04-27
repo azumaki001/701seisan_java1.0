@@ -1,0 +1,203 @@
+// 初期処理
+function initPage(){
+  var userlist;
+  var paylist;
+  var mipaylist;
+  // テストモードで仮データ
+  if("1" == $('#testFlag').val()){
+    userlist = [{"id":"1","name":"luo"},{"id":"2","name":"zhang"}];
+    paylist = [{"pay_id":"1","amount":"1000","use":"電気代１２３４５６７８９０１２３４５６７８９０","payer_id":"1","payer_name":"ra","users_id":"1,2,3","users_name":"ra,chen,zhang","regist_date":"2018-01-01 00:00","jd_done_flag":"1","detail":[{"date":"2018-01-01 00:00:00","amount":"1000","done":"0","name":"張　文睿"},{"date":"2018-01-02 00:00:00","amount":"1000","done":"0","name":"陳　楊"}]}
+               , {"pay_id":"2","amount":"1000","use":"電気代","payer_id":"1","payer_name":"ra","users_id":"1,2,3","users_name":"ra,chen,zhang","regist_date":"2018-01-01 00:00","jd_done_flag":"0","detail":[{"date":"2018-01-01 00:00:00","amount":"1000","done":"0","name":"張　文睿"},{"date":"2018-01-02 00:00:00","amount":"1000","done":"0","name":"陳　楊"}]}];
+    initialize(userlist, paylist);
+  }
+  // サーバーにアクセスモードで
+  else {
+    var xmlhttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/701seisan/rest/SeisanRestApi/api/v1";
+    xmlhttp.onreadystatechange = function() {
+      if(this.readyState == 4 ){
+        if (this.status == 200) {
+          // alert(this.responseText);
+          var respInfo = JSON.parse(this.responseText);
+          userlist = respInfo["userMst"];
+          paylist = respInfo["payList"];
+          mipaylist = respInfo["miPayList"];
+
+          // init実施
+          initialize(userlist, paylist, mipaylist);
+        } else {
+          alert("サーバーに接続失敗");
+          return;
+        }
+      }
+    };
+    xmlhttp.open("GET", url, false);
+    xmlhttp.send();
+  }
+}
+
+// Adjustへ遷移
+function jumpToAdjust(){
+  var url = "http://localhost:8080/701seisan/adjustPage";
+  //alert(url);
+  xmlhttp.onreadystatechange = function() {
+    if(this.readyState == 4 ){
+      if (this.status == 200) {
+        alert("サーバーに接続成功");
+      } else {
+        alert("サーバーに接続失敗");
+        return;
+      }
+    }
+  };
+  xmlhttp.open("GET", url, false);
+  xmlhttp.send();
+}
+
+function initialize(userlist, paylist, mipaylist){
+
+  var payerList = document.getElementById("input-pay-payer");
+  for (var row of userlist) {
+    payerList.add( new Option(row["name"], row["id"]) );
+  }
+
+  // 支払い登録のユーザーcheckBox
+  for (var row of userlist) {
+    var id = row["id"]
+    var name = row["name"]
+    var chkboxstr = '<input type="checkbox" name="users" value="' + id + '" id="' + id + '">' + '&nbsp;&nbsp;&nbsp;&nbsp;<label for="' + id + '">' + name + '</label></br>';
+    $('#hoge-checkbox-users').append(chkboxstr);
+  }
+
+  // 一覧作成
+  function createList(paylist);
+  function createList(mipaylist);
+}
+
+function createList(list)
+  // 未精算一覧生成
+  var tb = document.getElementById("list").getElementsByTagName('tbody')[0];
+  var i = 1;
+  for (var row of list) {
+    var tr = tb.insertRow(-1);
+    if(row["adDone"] != "1"){
+      tr.style.color = "red";
+    }
+    tr.insertCell(-1).innerHTML = i;
+    tr.insertCell(-1).innerHTML = row["payId"];
+    tr.insertCell(-1).innerHTML = row["payAmount"];
+    tr.insertCell(-1).innerHTML = row["payContent"];
+    tr.insertCell(-1).innerHTML = row["payer"];
+    tr.insertCell(-1).innerHTML = row["payForusers"];
+    tr.insertCell(-1).innerHTML = row["registDate"];
+    if (row["adDone"] == "0") {
+      tr.insertCell(-1).innerHTML = "×";
+    }
+    if (row["adDone"] == "1") {
+      tr.insertCell(-1).innerHTML = "〇";
+    }
+    if (row["adDone"] == "2") {
+      tr.insertCell(-1).innerHTML = "▲";
+    }
+    //tr.insertCell(-1).innerHTML = row["adDone"] == "1" ? "〇" : "×";
+
+    // 詳細ボタン
+    var datailJson = row["details"];
+
+    var datailText = "";
+    var sp = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    for(rowDetail of datailJson){
+      var flag = "×";
+      if(rowDetail["done"] == "1"){
+        flag = "〇"
+      }
+      datailText = datailText + rowDetail["name"] + sp + rowDetail["amount"] + sp +
+                   rowDetail["adDate"] + sp + flag + "</br>"
+    }
+
+    var bt = '<button type="button"   data-toggle="modal" data-target="#detailModal" class="btn btn-warning btn-sm" data-whatever="' + datailText + '">詳細</button>'
+    tr.insertCell(-1).innerHTML = bt;
+    i++;
+  }
+}
+
+// 支払い登録押下
+function clickRegist(){
+
+  // 引数を詰める
+  var param = {};
+  param.payAmount=$('#input-pay-amount').val(); // 引数.金額
+  param.payContent=$('#input-pay-use').val(); // 引数.用途
+  var elePayer = document.getElementById("input-pay-payer");
+  param.payer=elePayer.options[elePayer.selectedIndex].value;// 引数.支払者
+  var users = ""
+  var eleUsers = document.getElementsByName('users') ;
+  for(var i = 0 ; i < eleUsers.length ; i ++){
+    if(eleUsers[i].checked == true){
+      if(users == ""){
+        users = eleUsers[i].value;
+      } else {
+        users = users + "," + eleUsers[i].value;
+      }
+    }
+  }
+  param.payForusers=users; // 引数.使用者
+
+  // 非空白のチェック
+  if(param.payAmount == "" || param.payContent == "" || param.payer == "" || param.payForusers == "") {
+    alert("未入力があります。")
+    return;
+  }
+
+  // テストモードで仮データ
+  if("1" == $('#testFlag').val()){
+    alert("登録成功");
+    location.reload();
+  }
+  // サーバーにアクセスモードで
+  else {
+    var xmlhttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/701seisan/rest/SeisanRestApi/api/v2";
+
+    // サーバに対して解析方法を指定する
+    xmlhttp.onreadystatechange = function() {
+      if(this.readyState == 4 ){
+        if (this.status == 200) {
+          // 現在のページをリロード
+          location.reload();
+          var respInfo = JSON.parse(this.responseText);
+          var result = respInfo["result"];
+          if ("OK"==result) {
+            alert("登録成功");
+          } else {
+            alert("登録失敗");
+          }
+        } else {
+          alert("サーバーに接続失敗");
+          return;
+        }
+      }
+    };
+    xmlhttp.open("POST", url, false);
+    xmlhttp.send(JSON.stringify(param));
+  }
+}
+
+$(function () {
+
+  // 詳細押下-表示後処理
+  $('#detailModal').on('hidden.bs.modal', function (e) {
+    // クリア
+    var div = document.getElementById("detail_text");
+    div.innerHTML = "";
+  })
+
+  // 詳細押下
+  $('#detailModal').on('show.bs.modal', function (e) {
+    // alert("詳細押下");
+    var button = $(e.relatedTarget); // モーダルを呼び出すときに使われたボタンを取得
+    var txt = button.data("whatever");
+    div = document.getElementById("detail_text");
+    div.innerHTML = txt;
+  })
+});

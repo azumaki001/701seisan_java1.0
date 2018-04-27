@@ -1,0 +1,262 @@
+// 初期処理
+function initPage(){
+  var userlist;
+
+  // テストモードで仮データ
+  if("1" == $('#testFlag').val()){
+    userlist = [{"id":"1","name":"luo"},{"id":"2","name":"zhang"}];
+  }
+  // サーバーにアクセスモードで
+  else {
+    var xmlhttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/701seisan/rest/SeisanRestApi/api/v0";
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4){
+        if (this.status == 200) {
+          //alert(this.responseText);
+          var respInfo = JSON.parse(this.responseText);
+          userlist = respInfo["userList"];
+        } else {
+          alert("サーバーに接続失敗");
+          return;
+          }
+      }
+    };
+    xmlhttp.open("GET", url, false);
+    xmlhttp.send();
+  }
+
+  // ユーザー情報の読み込み
+  var userAList = document.getElementById("input-user-A");
+  for (var row of userlist) {
+    userAList.add( new Option(row["name"], row["id"]) );
+  }
+  var userBList = document.getElementById("input-user-B");
+  for (var row of userlist) {
+    userBList.add( new Option(row["name"], row["id"]) );
+  }
+
+  // 結果を不可見
+  var resultDiv = document.getElementById("detail-result");
+  resultDiv.style.visibility='hidden';
+}
+
+// 検索ボタン押下
+function selectDetail(){
+  var detailListAB;
+  var detailListBA;
+
+  // 引数を詰める
+  var param = {};
+  param.userA=$('#input-user-A').val(); // 引数.ユーザーA
+  param.userB=$('#input-user-B').val(); // 引数.ユーザーB
+
+  // 非空白のチェック
+  if(param.userA == "" || param.userB == "") {
+    alert("未選択があります。")
+    return;
+  }
+
+  // 精算、支払者が同じ人であるチェック
+  if(param.userA == param.userB) {
+    alert("精算者A・Bに違う人を選んでください。")
+    return;
+  }
+
+  // テストモードで仮データ
+  if("1" == $('#testFlag').val()){
+    alert(JSON.stringify( param ));
+    detailListAB = [{"userIdFrom":"1","userIdTo":"2","userNmFrom":"luo","userNmTo":"chen","payNum":"1","adNum":"10","use":"電気代","amount":"1000"}
+    ,{"userIdFrom":"2","userIdTo":"1","userNmFrom":"luo","userNmTo":"chen","payNum":"2","adNum":"20","use":"ガス代","amount":"2000"}];
+
+    detailListBA = [{"userFrom":"chen","userTo":"luo","payNum":"3","adNum":"30","use":"12月スキー","amount":"3000"}
+    ,{"userFrom":"chen","userTo":"luo","payNum":"4","adNum":"40","use":"家賃","amount":"4000"}];
+  }
+  // サーバーにアクセスモードで
+  else {
+    var url = "http://localhost:8080/701seisan/rest/SeisanRestApi/api/v3";
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if(this.readyState == 4 ){
+        if (this.status == 200) {
+          var respInfo = JSON.parse(this.responseText);
+          detailListAB = respInfo["detailListAB"];
+          detailListBA = respInfo["detailListBA"];
+        } else {
+          alert("サーバーに接続失敗");
+          return;
+        }
+      }
+    };
+    xmlhttp.open("POST", url, false);
+    xmlhttp.send(JSON.stringify(param));
+  }
+  var ad_ids = [];
+  // クリア
+  var tb = document.getElementById("detail-list");
+  while( tb.rows[ 1 ] ) tb.deleteRow( 1 );
+  // 設定
+  var totalAB = 0;
+  if(detailListAB.length != 0) {
+    var count = 0;
+    for (var row of detailListAB) {
+      var tr = tb.insertRow(-1)
+      if(count == 0){
+        tr.insertCell(-1).innerHTML = row["userNmFrom"];
+        tr.insertCell(-1).innerHTML = row["userNmTo"];
+      } else {
+        tr.insertCell(-1).innerHTML = "";
+        tr.insertCell(-1).innerHTML = "";
+      }
+      tr.insertCell(-1).innerHTML = row["payNum"];
+      tr.insertCell(-1).innerHTML = row["adNum"];
+      tr.insertCell(-1).innerHTML = row["use"];
+      tr.insertCell(-1).innerHTML = row["amount"];
+      totalAB += Number(row["amount"]);
+
+      //精算number保持
+      ad_ids.push(row["adNum"]);
+      count++;
+    }
+
+    // 合計A
+    var tr = tb.insertRow(-1)
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "合計A";
+    tr.insertCell(-1).innerHTML = String(totalAB);
+    tr.cells[4].style.backgroundColor = "yellow";
+    tr.cells[5].style.backgroundColor = "yellow";
+  }
+
+  var totalBA = 0;
+  if(detailListBA.length != 0){
+    var tb = document.getElementById("detail-list");
+    var count = 0;
+    for (var row of detailListBA) {
+      var tr = tb.insertRow(-1)
+      if(count == 0){
+        tr.insertCell(-1).innerHTML = row["userNmFrom"];
+        tr.insertCell(-1).innerHTML = row["userNmTo"];
+      } else {
+        tr.insertCell(-1).innerHTML = "";
+        tr.insertCell(-1).innerHTML = "";
+      }
+      tr.insertCell(-1).innerHTML = row["payNum"];
+      tr.insertCell(-1).innerHTML = row["adNum"];
+      tr.insertCell(-1).innerHTML = row["use"];
+      tr.insertCell(-1).innerHTML = row["amount"];
+      totalBA += Number(row["amount"]);
+
+      //精算number保持
+      ad_ids.push(row["adNum"]);
+      count++;
+    }
+
+    // 合計B
+    var tr = tb.insertRow(-1)
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "";
+    tr.insertCell(-1).innerHTML = "合計B";
+    tr.insertCell(-1).innerHTML = String(totalBA);
+    tr.cells[4].style.backgroundColor = "yellow";
+    tr.cells[5].style.backgroundColor = "yellow";
+  }
+
+  // 総計
+  var total_user_id_from = "";
+  var total_user_id_to = "";
+  var total_user_nm_from = "";
+  var total_user_nm_to = "";
+  var total_text = "総計";
+  var total_amount = 0;
+
+  // 総計出力のため、比較、計算
+  if(totalAB > totalBA){
+    total_user_id_from = detailListAB[0]["userIdFrom"];
+    total_user_id_to = detailListAB[0]["userIdTo"];
+    total_user_nm_from = detailListAB[0]["userNmFrom"];
+    total_user_nm_to = detailListAB[0]["userNmTo"];
+    total_amount = totalAB - totalBA;
+  } else if (totalBA > totalAB){
+    total_user_id_from = detailListBA[0]["userIdFrom"];
+    total_user_id_to = detailListBA[0]["userIdTo"];
+    total_user_nm_from = detailListBA[0]["userNmFrom"];
+    total_user_nm_to = detailListBA[0]["userNmTo"];
+    total_amount = totalBA - totalAB;
+  }
+
+  var tb = document.getElementById("detail-list");
+  var tr = tb.insertRow(-1);
+  tr.style.backgroundColor = "yellow";
+  tr.style.color = "red";
+  tr.style.fontSize = "large";
+  tr.insertCell(-1).innerHTML = total_user_nm_from;
+  tr.insertCell(-1).innerHTML = total_user_nm_to;
+  tr.insertCell(-1).innerHTML = "";
+  tr.insertCell(-1).innerHTML = "";
+  tr.insertCell(-1).innerHTML = "総計";
+  tr.insertCell(-1).innerHTML = String(total_amount);
+
+  // 送信用設定
+  document.getElementById("adjust_amount").value = String(total_amount);
+  document.getElementById("adjust_ids").value = ad_ids;
+  document.getElementById("user_id_from").value = total_user_id_from;
+  document.getElementById("user_id_to").value = total_user_id_to;
+
+  // 確認文言設定
+  document.getElementById("confirm_text").innerHTML =
+  total_user_nm_from + "&nbsp;&nbsp;→&nbsp;&nbsp;" + total_user_nm_to +
+    "&nbsp;&nbsp;&nbsp;&nbsp;" + String(total_amount);
+
+  //結果を可見
+  var resultDiv = document.getElementById("detail-result");
+  resultDiv.style.visibility='visible';
+}
+
+// 精算押下
+function clickAdjust(){
+
+  // 引数を詰める
+  var param = {};
+  param.adIds=$('#adjust_ids').val();
+  param.adAmount=$('#adjust_amount').val();
+  param.userIdFrom=$('#user_id_from').val();
+  param.userIdTo=$('#user_id_to').val();
+
+  // テストモードで仮データ
+  if("1" == $('#testFlag').val()){
+    alert(JSON.stringify( param ));
+  }
+  // サーバーにアクセスモードで
+  else {
+    var url = "http://localhost:8080/701seisan/rest/SeisanRestApi/api/v4";
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4){
+        if (this.status == 200) {
+          var respInfo = JSON.parse(this.responseText);
+          var result = respInfo["result"];
+          if (result == "NG") {
+            alert("精算処理失敗");
+            return;
+          }
+        } else {
+          alert("サーバーに接続失敗");
+          return;
+        }
+      }
+    };
+
+    // サーバに対して解析方法を指定する
+    xmlhttp.open("POST", url, false);
+    xmlhttp.send(JSON.stringify(param));
+  }
+
+  // 履歴画面へ遷移
+  window.location.href = './history.html';
+}
