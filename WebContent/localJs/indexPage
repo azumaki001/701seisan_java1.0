@@ -1,0 +1,37 @@
+// 初期処理
+function login(){
+  var tokenId;
+  // clear
+  $('h4.errorMsg').text('');
+  // テストモードで仮データ
+  if("1" == $('#testFlag').val()){
+  	window.location.href = './main.html';
+  }
+  // サーバーにアクセスモードで
+  else {
+    var xmlhttp = new XMLHttpRequest();
+    // TODO
+    var url = "http://localhost:8080/701seisan/rest/SeisanRestApi/api/login";
+    xmlhttp.onreadystatechange = function() {
+      if(this.readyState == 4 ){
+        if (this.status == 200) {
+          // alert(this.responseText);
+          var respInfo = JSON.parse(this.responseText);
+          tokenId = respInfo["tokenId"];
+          
+          //sessionに保存
+          window.sessionStorage.setItem(['token'],[tokenId]);
+
+          // main画面へ遷移
+          window.location.href = './main.html';
+        } else {
+          alert("ログイン失敗");
+          $('h4.errorMsg').text('ログイン失敗');
+          return;
+        }
+      }
+    };
+    xmlhttp.open("GET", url, false);
+    xmlhttp.send();
+  }
+}
