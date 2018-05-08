@@ -1,8 +1,15 @@
 // 初期処理
 function login(){
   var tokenId;
-  // clear
+  // errorMsg clear
   $('h4.errorMsg').text('');
+  
+    // 引数を詰める
+  var param = {};
+  param.userName=$('#userName').val(); // 引数.ユーザー名
+  param.password=$('#userPassword').val(); // 引数.パスワード
+  // TODO password暗号化処理
+  
   // テストモードで仮データ
   if("1" == $('#testFlag').val()){
   	window.location.href = './main.html';
@@ -10,7 +17,7 @@ function login(){
   // サーバーにアクセスモードで
   else {
     var xmlhttp = new XMLHttpRequest();
-    // TODO
+    // TODO url未決定
     var url = "http://localhost:8080/701seisan/rest/SeisanRestApi/api/login";
     xmlhttp.onreadystatechange = function() {
       if(this.readyState == 4 ){
@@ -32,6 +39,6 @@ function login(){
       }
     };
     xmlhttp.open("GET", url, false);
-    xmlhttp.send();
+    xmlhttp.send(JSON.stringify(param));
   }
 }
