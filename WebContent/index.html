@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja" Content-Type="text/plain">
+  <header class="header">
+    <base href="http://localhost:8080/701seisan/">
+    <!-- 1:dummy data,0:サーバーにアクセス -->
+    <input type="hidden" id="testFlag" value="0"/>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="./localCss/css1.css">
+    <link rel="stylesheet" type="text/css" href="./localCss/login.css">
+
+    <title>精算の巻</title>
+    <script src="./localJs/indexPage" type="text/javascript"></script>
+  </header>
+
+  <body>
+    <!-- header. fix me,共通化 -->
+    <div class="container">
+      <header class="blog-header py-3">
+        <div class="row flex-nowrap justify-content-between align-items-center">
+          <div class="col-4 pt-1">
+            <a class="text-muted" href="#"><h6>LauncHope co.,ltd.</h6></a>
+          </div>
+
+          <div class="col-4 text-center">
+            <a class="blog-header-logo text-dark" href="#"><h2>精算の巻</h2></a>
+          </div>
+
+          <div class="col-4 d-flex justify-content-end align-items-center">
+            <a class="text-muted" href="#"></a>
+            <!-- <a class="btn btn-sm btn-outline-secondary" href="#">Sign up</a> -->
+          </div>
+        </div>
+      </header><hr>
+
+
+
+<div class="align-items-center">
+    <div>
+        <div class="col-md-offset-5 col-md-3 login-center">
+            <div class="form-login">
+            <h4>Welcome back.</h4>
+            <input type="text" id="userName" class="form-control input-sm chat-input" placeholder="username" />
+            </br>
+            <input type="password" id="userPassword" class="form-control input-sm chat-input" placeholder="password" />
+            </br>
+            <h4 class="errorMsg"></h4>
+            <div class="wrapper">
+            <span class="group-btn">
+                <button type="button" class="btn btn-primary btn-bg" onclick="login()">login</button>
+            </span>
+            </div>
+            </div>
+        
+        </div>
+    </div>
+</div>
+
+      
+      
+    </div>
+
+    <footer>
+      <div class="container">
+        <span style="text-align: center;"><br>
+          <p>Designed by LauncHope@701-group<br>
+          </p>
+        </span>
+      </div>
+    </footer>
+
+  </body>
+</html>
